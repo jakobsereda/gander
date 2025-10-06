@@ -1,0 +1,12 @@
+|| This is an enum
+Job = #
+    Programmer,
+    Artist,
+    Doctor,
+    Mechanic
+
+|| This is a struct
+Person = $
+    age: Integer,
+    name: String,
+    job: Job
