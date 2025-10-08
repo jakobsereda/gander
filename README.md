@@ -10,3 +10,4 @@ Goals:
 - polymorphism
 - closures/lexical scope
 - pattern matching
+- monomorphization

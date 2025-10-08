@@ -1,0 +1,46 @@
+program            = { definition | expression };
+
+definition         = enum_def
+                   | struct_def
+                   | variable_def
+                   | function_def;
+
+enum_def           = identifier "=" "#" newline
+                   { indent enum_variant newline };
+
+enum_variant       = identifier;
+
+struct_def         = identifier "=" "$" newline
+                   { indent struct_field newline };
+
+struct_field       = identifier ":" type;
+
+function_def       = [ function_type_decl ] function_header;
+
+function_type_decl = "@" type_list "->" type newline;
+
+function_header    = identifier ":" parameter_list newline indent expression_block;
+
+parameter_list     = identifier { "," identifier };
+
+expression         = literal
+                   | identifier
+                   | function_call
+                   | unary_expr;
+                   | binary_expr;
+
+expression_block   = expression { newline expression };
+
+type               = primitive_type
+                   | identifier
+                   | function_type;
+
+type_list          = type { type };
+
+primitive_type     = "Int" | "Float" | "Bool" | "String";
+
+function_type      = "(" type { "," type } ")" "->" type;
+
+newline            = "\n";
+
+indent             = "\t";

@@ -1,12 +1,36 @@
-|| This is an enum
+|| This is an enum (sum type)
 Job = #
     Programmer,
     Artist,
     Doctor,
     Mechanic
 
-|| This is a struct
+Job::Artist
+
+|| This is a struct (product type)
 Person = $
     age: Integer,
     name: String,
     job: Job
+
+Person.age
+
+|| Primitive data types
+Int
+Float
+Bool
+String
+Func
+
+@ Int Int -> Int 
+my_function : a, b
+    a + b
+
+another_func : cool
+    match cool
+        true  => 3
+        false => 4
+
+@ Bool (Int Int) -> Int
+hof : bool, proc
+    
