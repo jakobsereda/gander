@@ -29,15 +29,9 @@ expression          = comparison_expr;
 
 expression_block    = expression { newline expression };
 
-comparison_expr     = bitwise_or_expr [ comparison_op bitwise_or_expr ];
+comparison_expr     = additive_expr [ comparison_op additive_expr ];
 
 comparison_op       = "==" | "!=" | "<" | ">" | "<=" ">=";
-
-bitwise_or_expr     = bitwise_xor_expr { "|" bitwise_xor_expr };
-
-bitwise_xor_expr    = bitwise_and_expr { "^" bitwise_and_expr };
-
-bitwise_and_expr    = additive_expr { "&" additive_expr };
 
 additive_expr       = multiplicative_expr { ( "+" | "-" ) multiplicative_expr };
 
