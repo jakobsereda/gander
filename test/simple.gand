@@ -22,7 +22,7 @@ Bool
 String
 Func
 
-@ Int Int -> Int 
+@ Int, Int -> Int 
 my_function : a, b
     a + b
 
@@ -31,6 +31,6 @@ another_func : cool
         true  => 3
         false => 4
 
-@ Bool (Int Int) -> Int
+@ Bool, (Int, Int) -> Int
 hof : bool, proc
     
