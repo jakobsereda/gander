@@ -2,10 +2,10 @@ use thiserror::Error;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token {
-    var: TokenVariant,
-    lit: String,
-    row: usize,
-    col: usize
+    pub var: TokenVariant,
+    pub lit: String,
+    pub row: usize,
+    pub col: usize
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -51,5 +51,5 @@ pub enum Symbol {
 #[derive(Error, Debug)]
 pub enum TokenizerError {
     #[error("unknown tokenizer error at line {0}")]
-    Unknown(i32)
+    Unknown(usize)
 }

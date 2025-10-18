@@ -11,3 +11,6 @@ Goals:
 - closures/lexical scope
 - pattern matching
 - monomorphization
+
+resources for development:
+https://brson.github.io/2023/03/12/move-on-llvm
