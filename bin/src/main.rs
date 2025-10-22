@@ -1,5 +1,5 @@
-use std::fs;
 use clap::Parser;
+use std::fs;
 
 /// A compiler for the Gander programming language
 #[derive(Parser, Debug)]
@@ -11,14 +11,13 @@ struct Args {
 
     /// Turns debugging info on
     #[arg(short, long)]
-    debug: bool
+    debug: bool,
 }
 
 fn main() {
     let args = Args::parse();
 
-    let data = fs::read_to_string(args.path)
-        .expect("Unable to read from provided filepath");
+    let data = fs::read_to_string(args.path).expect("Unable to read from provided filepath");
 
     println!("{}", data);
 }

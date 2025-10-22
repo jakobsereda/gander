@@ -1,94 +1,92 @@
 use super::types::*;
+use crate::scanner::Scanner;
 
-pub fn tokenize(input: &str) -> Result<Vec<Token>, TokenizerError> {
-    let mut tokens: Vec<Token> = Vec::new();
-    let mut chars = input.chars().peekable();
-    let mut row = 0;
-    let mut col = 0;
+pub struct Tokenizer<'a> {
+    scanner: Scanner<'a>,
+    tokens: Vec<Token>,
+    row: usize,
+    col: usize,
+}
 
-    while let Some(&c) = chars.peek() {
-        match c {
-            '(' => {
-                tokens.push(Token {
-                    var: TokenVariant::Symbol(Symbol::LParen),
-                    lit: String::from("("),
-                    row,
-                    col
-                });
-                chars.next();
-            }
-            ')' => {
-                tokens.push(Token {
-                    var: TokenVariant::Symbol(Symbol::RParen),
-                    lit: String::from(")"),
-                    row,
-                    col
-                });
-                chars.next();
-            }
-            '@' => {
-                tokens.push(Token {
-                    var: TokenVariant::Symbol(Symbol::At),
-                    lit: String::from("@"),
-                    row,
-                    col
-                });
-                chars.next();
-            }
-            '$' => {
-                tokens.push(Token {
-                    var: TokenVariant::Symbol(Symbol::Dollar),
-                    lit: String::from("$"),
-                    row,
-                    col
-                });
-                chars.next();
-            }
-            '#' => {
-                tokens.push(Token {
-                    var: TokenVariant::Symbol(Symbol::Hash),
-                    lit: String::from("#"),
-                    row,
-                    col
-                });
-                chars.next();
-            }
-            '+' => {
-                tokens.push(Token {
-                    var: TokenVariant::Symbol(Symbol::Plus),
-                    lit: String::from("+"),
-                    row,
-                    col
-                });
-                chars.next();
-            }
-            '=' => {
-                chars.next();
-                match chars.peek() {
-                    Some(&'=') => {
-                        tokens.push(Token {
-                            var: TokenVariant::Symbol(Symbol::DoubleEquals),
-                            lit: String::from("=="),
-                            row,
-                            col
-                        });
-                        chars.next();
-                    }
-                    _ => {
-                        tokens.push(Token {
-                            var: TokenVariant::Symbol(Symbol::Equals),
-                            lit: String::from("="),
-                            row,
-                            col
-                        });
-                    }
-                }
-            }
-            _ => return Err(TokenizerError::Unknown(row))
+impl<'a> Tokenizer<'a> {
+    pub fn new(src: &'a str) -> Self {
+        Self {
+            scanner: Scanner::new(src),
+            tokens: Vec::new(),
+            row: 0,
+            col: 0,
         }
-
-        row += 1;
     }
 
-    Ok(tokens)
+    pub fn tokenize(mut self) -> Result<Vec<Token>, TokenizerError> {
+        while let Some(c) = self.scanner.peek() {
+            if self.process_single_symbol(c) {
+                continue;
+            }
+
+            match c {
+                '=' => self.process_double_symbol('=', Symbol::DoubleEquals, Symbol::Equals, "==", "="),
+                ':' => self.process_double_symbol(':', Symbol::DoubleColon, Symbol::Colon, "::", ":"),
+                '-' => self.process_double_symbol('>', Symbol::Arrow, Symbol::Minus, "->", "-"),
+                '>' => self.process_double_symbol('=', Symbol::GreaterEquals, Symbol::GreaterThan, ">=", ">"),
+                '<' => self.process_double_symbol('=', Symbol::LessEquals, Symbol::LessThan, "<=", "<"),
+                _ => return Err(TokenizerError::Unknown(self.row))
+            }
+        }
+
+        Ok(self.tokens)
+    }
+
+    fn process_double_symbol(&mut self, c: char, sym_a: Symbol, sym_b: Symbol, lit_a: &str, lit_b: &str) {
+        self.advance();
+        if self.scanner.peek() == Some(c) {
+            self.push_token(sym_a, lit_a);
+            self.advance();
+        } else {
+            self.push_token(sym_b, lit_b);
+        }
+    }
+
+    fn process_single_symbol(&mut self, c: char) -> bool {
+        let s = match c {
+            '(' => Some(Symbol::LParen),
+            ')' => Some(Symbol::RParen),
+            '@' => Some(Symbol::At),
+            '$' => Some(Symbol::Dollar),
+            '#' => Some(Symbol::Hash),
+            '+' => Some(Symbol::Plus),
+            '*' => Some(Symbol::Multiply),
+            '/' => Some(Symbol::Divide),
+            '%' => Some(Symbol::Modulo),
+            ',' => Some(Symbol::Comma),
+            _ => None,
+        };
+
+        if let Some(symbol) = s {
+            self.push_token(symbol, &c.to_string());
+            self.advance();
+            true
+        } else {
+            false
+        }
+    }
+
+    fn push_token(&mut self, symbol: Symbol, rep: &str) {
+        self.tokens.push(Token {
+            var: TokenVariant::Symbol(symbol),
+            lit: String::from(rep),
+            row: self.row,
+            col: self.col,
+        });
+    }
+
+    fn advance(&mut self) {
+        let Some(c) = self.scanner.eat() else { return };
+        if c == '\n' {
+            self.row += 1;
+            self.col = 0;
+        } else {
+            self.col += 1;
+        }
+    }
 }

@@ -1,4 +1,4 @@
-pub mod types;
 mod core;
+pub mod types;
 
-pub use core::tokenize;
+pub use core::Tokenizer;
