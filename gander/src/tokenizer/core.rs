@@ -20,16 +20,22 @@ impl<'a> Tokenizer<'a> {
 
     pub fn tokenize(mut self) -> Result<Vec<Token>, TokenizerError> {
         while let Some(c) = self.scanner.peek() {
-            if self.process_single_symbol(c) {
-                continue;
-            }
-
             match c {
-                '=' => self.process_double_symbol('=', Symbol::DoubleEquals, Symbol::Equals, "==", "="),
-                ':' => self.process_double_symbol(':', Symbol::DoubleColon, Symbol::Colon, "::", ":"),
-                '-' => self.process_double_symbol('>', Symbol::Arrow, Symbol::Minus, "->", "-"),
+                '(' => self.process_single_symbol(Symbol::LParen,   "("),
+                ')' => self.process_single_symbol(Symbol::RParen,   ")"),
+                '@' => self.process_single_symbol(Symbol::At,       "@"),
+                '$' => self.process_single_symbol(Symbol::Dollar,   "$"),
+                '#' => self.process_single_symbol(Symbol::Hash,     "#"),
+                '+' => self.process_single_symbol(Symbol::Plus,     "+"),
+                '*' => self.process_single_symbol(Symbol::Multiply, "*"),
+                '/' => self.process_single_symbol(Symbol::Divide,   "/"),
+                '%' => self.process_single_symbol(Symbol::Modulo,   "%"),
+                ',' => self.process_single_symbol(Symbol::Comma,    ","),
+                '=' => self.process_double_symbol('=', Symbol::DoubleEquals,  Symbol::Equals,      "==", "="),
+                ':' => self.process_double_symbol(':', Symbol::DoubleColon,   Symbol::Colon,       "::", ":"),
+                '-' => self.process_double_symbol('>', Symbol::Arrow,         Symbol::Minus,       "->", "-"),
                 '>' => self.process_double_symbol('=', Symbol::GreaterEquals, Symbol::GreaterThan, ">=", ">"),
-                '<' => self.process_double_symbol('=', Symbol::LessEquals, Symbol::LessThan, "<=", "<"),
+                '<' => self.process_double_symbol('=', Symbol::LessEquals,    Symbol::LessThan,    "<=", "<"),
                 _ => return Err(TokenizerError::Unknown(self.row))
             }
         }
@@ -47,28 +53,9 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn process_single_symbol(&mut self, c: char) -> bool {
-        let s = match c {
-            '(' => Some(Symbol::LParen),
-            ')' => Some(Symbol::RParen),
-            '@' => Some(Symbol::At),
-            '$' => Some(Symbol::Dollar),
-            '#' => Some(Symbol::Hash),
-            '+' => Some(Symbol::Plus),
-            '*' => Some(Symbol::Multiply),
-            '/' => Some(Symbol::Divide),
-            '%' => Some(Symbol::Modulo),
-            ',' => Some(Symbol::Comma),
-            _ => None,
-        };
-
-        if let Some(symbol) = s {
-            self.push_token(symbol, &c.to_string());
-            self.advance();
-            true
-        } else {
-            false
-        }
+    fn process_single_symbol(&mut self, sym: Symbol, lit: &str) {
+        self.push_token(sym, lit);
+        self.advance();
     }
 
     fn push_token(&mut self, symbol: Symbol, rep: &str) {
