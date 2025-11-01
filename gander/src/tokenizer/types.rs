@@ -1,11 +1,3 @@
-use thiserror::Error;
-
-#[derive(Error, Debug)]
-pub enum TokenizerError {
-    #[error("unknown tokenizer error at line {0}")]
-    Unknown(usize),
-}
-
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub var: TokenVariant,
@@ -52,4 +44,6 @@ pub enum Symbol {
     Divide,
     Modulo,
     Comma,
+    DoublePipe,
+    Unknown,
 }

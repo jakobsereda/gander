@@ -37,7 +37,7 @@ additive_expr       = multiplicative_expr { ( "+" | "-" ) multiplicative_expr };
 
 multiplicative_expr = unary_expr { ( "/" | "*" | "%" ) unary_expr };
 
-unary_expr          = [ "~" | "-" ] primary_expr;
+unary_expr          = [ "-" ] primary_expr;
 
 primary_expr        = struct_access
                     | enum_access
