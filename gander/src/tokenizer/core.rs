@@ -37,17 +37,64 @@ impl<'a> Tokenizer<'a> {
                 '>' => self.process_double_symbol('=', Symbol::GreaterEquals, Symbol::GreaterThan, ">=", ">"),
                 '<' => self.process_double_symbol('=', Symbol::LessEquals,    Symbol::LessThan,    "<=", "<"),
                 '|' => self.process_double_symbol('|', Symbol::DoublePipe,    Symbol::Unknown,     "||", "|"),
-                '0'..='9' => {
-                    let _ = 0;
-                },
-                'a'..='z' | 'A'..='Z' | '_' => {
-                    let _ = 0;
-                },
+                '0'..='9' => self.process_numerical_lit(),
+                'a'..='z' | 'A'..='Z' | '_' => self.process_str_lit_or_ident(),
                 c => self.process_single_symbol(Symbol::Unknown, c.encode_utf8(&mut [0; 4])),
             }
         }
 
         self.tokens
+    }
+
+    fn process_str_lit_or_ident(&mut self) {
+        let mut lit = self.advance().unwrap().to_string();
+
+        while let Some(c) = self.scanner.peek() {
+            match c {
+                'a'..='z' | 'A'..='Z' | '_' => {
+                    lit.push(self.advance().unwrap());
+                },
+                _ => break,
+            }
+        }
+
+        match lit.as_str() {
+            "Int"    => self.push_token(TokenVariant::Symbol(Symbol::IntType),    &lit),
+            "Float"  => self.push_token(TokenVariant::Symbol(Symbol::FloatType),  &lit),
+            "Bool"   => self.push_token(TokenVariant::Symbol(Symbol::BoolType),   &lit),
+            "String" => self.push_token(TokenVariant::Symbol(Symbol::StringType), &lit),
+            "Func"   => self.push_token(TokenVariant::Symbol(Symbol::FuncType),   &lit),
+            "true" | "false" => self.push_token(TokenVariant::Literal(Literal::Bool), &lit),
+            _ => self.push_token(TokenVariant::Identifier, &lit),
+        }
+    }
+
+    fn process_numerical_lit(&mut self) {
+        let mut lit = self.advance().unwrap().to_string();
+        let mut is_float = false;
+
+        while let Some(c) = self.scanner.peek() {
+            match c {
+                '0'..='9' => {
+                    lit.push(self.advance().unwrap());
+                },
+                '.' => {
+                    if is_float {
+                        break;
+                    }
+
+                    lit.push(self.advance().unwrap());
+                    is_float = true;
+                },
+                _ => break,
+            }
+        }
+                    
+        if is_float {
+            self.push_token(TokenVariant::Literal(Literal::Float), &lit);
+        } else {
+            self.push_token(TokenVariant::Literal(Literal::Int), &lit);
+        }
     }
 
     fn process_double_symbol(&mut self, c: char, sym_a: Symbol, sym_b: Symbol, lit_a: &str, lit_b: &str) {
@@ -74,13 +121,14 @@ impl<'a> Tokenizer<'a> {
         });
     }
 
-    fn advance(&mut self) {
-        let Some(c) = self.scanner.eat() else { return };
+    fn advance(&mut self) -> Option<char> {
+        let Some(c) = self.scanner.eat() else { return None };
         if c == '\n' {
             self.row += 1;
             self.col = 0;
         } else {
             self.col += 1;
         }
+        Some(c)
     }
 }

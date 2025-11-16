@@ -1,9 +1,17 @@
+use core::fmt;
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub var: TokenVariant,
     pub lit: String,
     pub row: usize,
     pub col: usize,
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} @ {}:{}", self.lit, self.row, self.col)
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -45,5 +53,10 @@ pub enum Symbol {
     Modulo,
     Comma,
     DoublePipe,
+    IntType,
+    FloatType,
+    BoolType,
+    StringType,
+    FuncType,
     Unknown,
 }

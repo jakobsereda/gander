@@ -9,7 +9,7 @@ Job::Artist
 
 || This is a struct (product type)
 Person = $
-    age: Integer,
+    age: Int,
     name: String,
     job: Job
 
@@ -23,14 +23,20 @@ String
 Func
 
 @ Int, Int -> Int 
-my_function : a, b
+my_function = : a, b
     a + b
 
-another_func : cool
+another_func = : cool
     match cool
         true  => 3
         false => 4
 
 @ Bool, (Int, Int) -> Int
-hof : bool, proc
-    
+hof = : bool, proc
+
+|| lambda
+: a -> a * 2
+
+|| or?
+
+: a | a * 2
