@@ -13,7 +13,7 @@ impl<'a> Tokenizer<'a> {
         Self {
             scanner: Scanner::new(src),
             tokens: Vec::new(),
-            row: 0,
+            row: 1,
             col: 0,
         }
     }
@@ -31,19 +31,29 @@ impl<'a> Tokenizer<'a> {
                 '/' => self.process_single_symbol(Symbol::Divide,   "/"),
                 '%' => self.process_single_symbol(Symbol::Modulo,   "%"),
                 ',' => self.process_single_symbol(Symbol::Comma,    ","),
+                '.' => self.process_single_symbol(Symbol::Period,   "."),
                 '=' => self.process_double_symbol('=', Symbol::DoubleEquals,  Symbol::Equals,      "==", "="),
                 ':' => self.process_double_symbol(':', Symbol::DoubleColon,   Symbol::Colon,       "::", ":"),
                 '-' => self.process_double_symbol('>', Symbol::Arrow,         Symbol::Minus,       "->", "-"),
                 '>' => self.process_double_symbol('=', Symbol::GreaterEquals, Symbol::GreaterThan, ">=", ">"),
                 '<' => self.process_double_symbol('=', Symbol::LessEquals,    Symbol::LessThan,    "<=", "<"),
-                '|' => self.process_double_symbol('|', Symbol::DoublePipe,    Symbol::Unknown,     "||", "|"),
+                '!' => self.process_double_symbol('=', Symbol::NotEquals,     Symbol::Unknown,     "!=", "!"),
+                '|' => self.process_comments(),
                 '0'..='9' => self.process_numerical_lit(),
                 'a'..='z' | 'A'..='Z' | '_' => self.process_str_lit_or_ident(),
+                ' ' | '\t' | '\n' => self.process_whitespace(),
                 c => self.process_single_symbol(Symbol::Unknown, c.encode_utf8(&mut [0; 4])),
             }
         }
 
         self.tokens
+    }
+
+    fn process_whitespace(&mut self) {
+        // Currently, this is just a wrapper around 
+        // advance, but it might want to do additional 
+        // processing later so... this function exists
+        self.advance();
     }
 
     fn process_str_lit_or_ident(&mut self) {
@@ -97,8 +107,21 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
+    fn process_comments(&mut self) {
+        self.advance();
+
+        if self.scanner.peek() == Some('|') {
+            while let Some(c) = self.advance() {
+                if c == '\n' { break; }
+            }
+        } else {
+            self.push_token(TokenVariant::Symbol(Symbol::Unknown), "|");
+        }
+    }
+
     fn process_double_symbol(&mut self, c: char, sym_a: Symbol, sym_b: Symbol, lit_a: &str, lit_b: &str) {
         self.advance();
+
         if self.scanner.peek() == Some(c) {
             self.push_token(TokenVariant::Symbol(sym_a), lit_a);
             self.advance();
@@ -123,12 +146,14 @@ impl<'a> Tokenizer<'a> {
 
     fn advance(&mut self) -> Option<char> {
         let Some(c) = self.scanner.eat() else { return None };
+
         if c == '\n' {
             self.row += 1;
             self.col = 0;
         } else {
             self.col += 1;
         }
+
         Some(c)
     }
 }

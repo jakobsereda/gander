@@ -1,6 +1,8 @@
 use clap::Parser;
 use std::fs;
 
+use gander::tokenizer::Tokenizer;
+
 /// A compiler for the Gander programming language
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -19,5 +21,10 @@ fn main() {
 
     let data = fs::read_to_string(args.path).expect("Unable to read from provided filepath");
 
-    println!("{}", data);
+    let tokenizer = Tokenizer::new(&data);
+    let tokens = tokenizer.tokenize();
+
+    for token in tokens {
+        println!("{}", token);
+    }
 }

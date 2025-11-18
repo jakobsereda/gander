@@ -1,3 +1,3 @@
 mod scanner;
-mod token;
-mod tokenizer;
+pub mod token;
+pub mod tokenizer;

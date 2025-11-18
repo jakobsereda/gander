@@ -9,10 +9,6 @@ impl<'a> Scanner<'a> {
         Self { src, pos: 0 }
     }
 
-    pub fn is_done(&self) -> bool {
-        self.pos >= self.src.len()
-    }
-
     pub fn peek(&self) -> Option<char> {
         self.src[self.pos..].chars().next()
     }
