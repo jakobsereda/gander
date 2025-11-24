@@ -22,9 +22,8 @@ fn main() {
     let data = fs::read_to_string(args.path).expect("Unable to read from provided filepath");
 
     let tokenizer = Tokenizer::new(&data);
-    let tokens = tokenizer.tokenize();
 
-    for token in tokens {
+    for token in tokenizer {
         println!("{}", token);
     }
 }

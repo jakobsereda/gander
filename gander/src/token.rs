@@ -3,16 +3,27 @@ use core::fmt;
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub var: TokenVariant,
-    pub lit: String,
+    pub lit: Option<String>,
     pub row: usize,
     pub col: usize,
 }
 
+impl Token {
+    pub fn new(var: TokenVariant, lit: Option<&str>, row: usize, col: usize) -> Self {
+        Self {
+            var,
+            lit: lit.map(|s| s.to_string()),
+            row,
+            col,
+        }
+    }
+}
+
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match &self.var {
-            TokenVariant::Symbol(_) => write!(f, "{} @ {}:{}", self.var, self.row, self.col),
-            _ => write!(f, "{}({}) @ {}:{}", self.var, self.lit, self.row, self.col),
+        match &self.lit {
+            Some(l) => write!(f, "{}({}) @ {}:{}", self.var, l, self.row, self.col),
+            None => write!(f, "{} @ {}:{}", self.var, self.row, self.col),
         }
     }
 }
@@ -83,11 +94,12 @@ pub enum Symbol {
     Modulo,
     Comma,
     Period,
+    Exclaim,
     IntType,
-    FloatType,
     BoolType,
-    StringType,
     FuncType,
+    FloatType,
+    StringType,
     Unknown,
 }
 
@@ -118,11 +130,12 @@ impl fmt::Display for Symbol {
             Modulo => "%",
             Comma => ",",
             Period => ".",
+            Exclaim => "!",
             IntType => "Int",
-            FloatType => "Float",
             BoolType => "Bool",
-            StringType => "String",
             FuncType => "Func",
+            FloatType => "Float",
+            StringType => "String",
             Unknown => "Unknown",
         };
 
