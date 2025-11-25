@@ -1,6 +1,7 @@
 use crate::token::*;
 use crate::scanner::Scanner;
 
+#[derive(Debug)]
 pub struct Tokenizer<'a> {
     scanner: Scanner<'a>,
     row: usize,
