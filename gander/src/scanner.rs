@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Scanner<'a> {
     src: &'a str,
     pos: usize,
