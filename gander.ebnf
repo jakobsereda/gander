@@ -21,7 +21,7 @@ function_def        = [ function_type_decl ] function_header;
 
 function_type_decl  = "@" type { "," type } "->" type newline;
 
-function_header     = identifier ":" parameter_list newline indent expression_block;
+function_header     = identifier "=" ":" parameter_list newline indent expression_block;
 
 parameter_list      = identifier { "," identifier };
 
