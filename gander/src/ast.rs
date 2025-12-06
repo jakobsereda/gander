@@ -44,9 +44,9 @@ pub struct StructField {
 
 #[derive(Debug)]
 pub struct VariableDef {
-    pub ident: String,
     pub vtype: Option<Type>,
-    pub value: Expression, 
+    pub ident: String,
+    pub value: Expression,
 }
 
 #[derive(Debug)]

@@ -17,6 +17,10 @@ impl<'a> Parser<'a> {
         }
     }
 
+    // EBNF:
+    //     program = { item };
+    //
+    // Entry point for the parser
     pub fn parse_program(&mut self) -> Program {
         let mut items = Vec::new();
 
@@ -27,12 +31,21 @@ impl<'a> Parser<'a> {
         Program { items }
     }
 
+    // EBNF:
+    //     item = definition
+    //          | expression;
     fn parse_item(&mut self) -> Item {
-        // TODO: wait, can't we have the equals 2 ahead
-        // as well? Like Int a = 3 for example
-        if self.check(TokenVariant::Symbol(Symbol::Equals), 1) {
+        let equals = TokenVariant::Symbol(Symbol::Equals);
+        let at = TokenVariant::Symbol(Symbol::At);
+
+        // A variable definition can either have an
+        // exlicit type or not. i.e.
+        //     Int a = 2
+        // or
+        //     a = 2
+        if self.check(equals, 1) || self.check(equals, 2) {
             Item::Definition(self.parse_definition())
-        } else if self.check(TokenVariant::Symbol(Symbol::At), 0) {
+        } else if self.check(at, 0) {
             let sig = self.parse_function_type_decl();
             Item::Definition(Definition::Function(
                 FunctionDef {
@@ -45,6 +58,11 @@ impl<'a> Parser<'a> {
         }
     }
 
+    // EBNF:
+    //     definition = enum_def
+    //                | struct_def
+    //                | variable_def
+    //                | function_def;
     fn parse_definition(&mut self) -> Definition {
         match self.tokens.peek_n(2) {
             TokenVariant::Symbol(Symbol::Hash) => {
@@ -65,6 +83,9 @@ impl<'a> Parser<'a> {
         }
     }
 
+    // EBNF:
+    //     enum_def = identifier "=" "#" newline
+    //              { identifier enum_variant newline };
     // TODO: better error handling in this fn
     // TODO: ebnf dosen't have commas for enums
     // and structs
@@ -150,15 +171,62 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_variable_def(&mut self) -> VariableDef {
-        if self.check(TokenVariant::Symbol(Symbol::Equals), 2)
+        let vtype: Option<Type> = None;
+        if self.check(TokenVariant::Symbol(Symbol::Equals), 2) {
+            vtype = Some(self.parse_type());
+        }
+
+        let ident = self.tokens.eat().unwrap();
+
+        // Consume Symbol::Equals
+        self.tokens.eat();
+
+        let value = self.parse_expression();
+
+        VariableDef {
+            vtype,
+            ident,
+            value
+        }
     }
 
     fn parse_function_def(&mut self) -> FunctionDef {
-        todo!()
-    } 
+        let sig: Option<FunctionTypeDecl> = None;
+        if self.check(TokenVariant::Symbol(Symbol::At), 0) {
+            sig = Some(self.parse_function_type_decl());
+        }
+
+        let head = self.parse_function_header();
+
+        FunctionDef {
+            sig,
+            head
+        }
+    }
 
     fn parse_function_type_decl(&mut self) -> FunctionTypeDecl {
-        todo!()
+        // Consume Symbol::At
+        self.tokens.eat();
+
+        let params = Vec::new();
+        while !self.check(TokenVariant::Symbol(Symbol::Arrow), 1) {
+            params.push(self.parse_type());
+
+            // Consume Symbol::Comma
+            self.tokens.eat();
+        }
+
+        params.push(self.parse_type());
+
+        // Consume Symbol::Arrow
+        self.tokens.eat();
+
+        let ret = self.tokens.eat();
+
+        FunctionTypeDecl {
+            params,
+            ret
+        }
     }
 
     fn parse_function_header(&mut self) -> FunctionHeader {

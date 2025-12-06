@@ -1,4 +1,7 @@
-program             = { definition | expression };
+program             = { item };
+
+item                = definition
+                    | expression;
 
 definition          = enum_def
                     | struct_def
