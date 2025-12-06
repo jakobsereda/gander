@@ -77,7 +77,7 @@ pub enum Type {
 
 #[derive(Debug)]
 pub enum PrimitiveType {
-    Int, 
+    Int,
     Bool,
     Float,
     String,
