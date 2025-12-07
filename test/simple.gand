@@ -22,21 +22,18 @@ Bool
 String
 Func
 
-@ Int, Int -> Int 
-my_function = : a, b
+@ Int, Int -> Int
+my_function = : (a, b)
     a + b
 
-another_func = : cool
+another_func = : (cool)
     match cool
         true  => 3
         false => 4
 
 @ Bool, (Int, Int) -> Int
-hof = : bool, proc
+hof = : (bool, proc)
 
 || lambda
-: a -> a * 2
+: (a) a * 2
 
-|| or?
-
-: a | a * 2
