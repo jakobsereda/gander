@@ -58,7 +58,10 @@ suffix              = "." identifier
 
 primary_expr        = identifier
                     | literal
+                    | struct_init
                     | "(" expression ")";
+
+struct_init         = "{" [ expression { "," expression } ] "}";
 
 (* ====== TYPE ====== *)
 
