@@ -1,5 +1,5 @@
 [package]
-name = "gander"
+name = "gander_legacy"
 version = { workspace = true }
 edition = { workspace = true }
 

@@ -5,4 +5,5 @@ edition = { workspace = true }
 
 [dependencies]
 gander = { workspace = true }
+gander_legacy = { workspace = true }
 clap = { workspace = true }

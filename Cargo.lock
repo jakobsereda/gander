@@ -58,6 +58,7 @@ version = "0.0.1"
 dependencies = [
  "clap",
  "gander",
+ "gander_legacy",
 ]
 
 [[package]]
@@ -108,6 +109,13 @@ checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
 
 [[package]]
 name = "gander"
+version = "0.0.1"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
+name = "gander_legacy"
 version = "0.0.1"
 dependencies = [
  "thiserror",

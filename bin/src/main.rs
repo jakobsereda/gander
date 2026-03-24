@@ -1,7 +1,7 @@
 use clap::Parser;
 use std::fs;
 
-use gander::tokenizer::Tokenizer;
+use gander_legacy::tokenizer::Tokenizer;
 
 /// A compiler for the Gander programming language
 #[derive(Parser, Debug)]

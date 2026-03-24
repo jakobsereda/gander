@@ -1,87 +1,91 @@
 program             = { item };
 
 item                = definition
-                    | expression;
+                    | statement;
 
 definition          = enum_def
                     | struct_def
                     | variable_def
                     | function_def;
 
-enum_def            = identifier "=" "#" newline
-                    { indent enum_variant newline };
+statement           = expression ";";
 
-enum_variant        = identifier;
+(* ====== ENUM ====== *)
 
-struct_def          = identifier "=" "$" newline
-                    { indent struct_field newline };
+enum_def            = "#" identifier "{" enum_variant { "," enum_variant } "}";
+
+enum_variant        = identifier [ "(" type { "," type } ")" ];
+
+(* ===== STRUCT ===== *)
+
+struct_def          = "$" identifier "{" struct_field { "," struct_field } "}";
 
 struct_field        = identifier ":" type;
 
-variable_def        = [ type ] identifier "=" expression;
+(* ==== VARIABLE ==== *)
 
-function_def        = [ function_type_decl ] function_header;
+variable_def        = type identifier "=" expression ";";
 
-function_type_decl  = "@" type { "," type } "->" type newline;
+(* ==== FUNCTION ==== *)
 
-function_header     = identifier "=" ":" parameter_list newline indent expression_block;
+function_def        = "@" identifier "(" [ parameter_list ] ")" "->" type "{" function_body "}";
 
-parameter_list      = "(" identifier { "," identifier } ")";
+parameter_list      = parameter { "," parameter };
+
+parameter           = type identifier;
+
+function_body       = { statement } [ expression ];
+
+(* === EXPRESSION === *)
 
 expression          = comparison_expr;
 
-expression_block    = expression { newline expression };
-
 comparison_expr     = additive_expr [ comparison_op additive_expr ];
 
-comparison_op       = "==" | "!=" | "<" | ">" | "<=" ">=";
+comparison_op       = "==" | "!=" | "<" | ">" | "<=" | ">=";
 
 additive_expr       = multiplicative_expr { ( "+" | "-" ) multiplicative_expr };
 
 multiplicative_expr = unary_expr { ( "/" | "*" | "%" ) unary_expr };
 
-unary_expr          = [ "-" ] primary_expr;
+unary_expr          = [ "-" | "!" ] postfix_expr;
 
-primary_expr        = struct_access
-                    | enum_access
-                    | function_call
-                    | identifier
+postfix_expr        = primary_expr { suffix };
+
+suffix              = "." identifier
+                    | "::" identifier
+                    | "(" [ expression { "," expression } ] ")";
+
+primary_expr        = identifier
                     | literal
                     | "(" expression ")";
 
+(* ====== TYPE ====== *)
+
 type                = primitive_type
-                    | identifier
-                    | function_type;
+                    | identifier;
 
-primitive_type      = "Int" | "Float" | "Bool" | "String";
+primitive_type      = "Int" | "Float" | "Bool" | "String" | "Unit";
 
-struct_access       = ( identifier | function_call ) "." identifier;
-
-enum_access         = identifier "::" identifier;
-
-function_type       = "(" type { "," type } ")" "->" type;
-
-function_call       = identifier "(" [ expression { "," expression } ] ")";
+(* ==== LITERALS ==== *)
 
 identifier          = letter { letter | digit | "_" };
 
 literal             = int_lit | float_lit | bool_lit | string_lit;
 
-int_lit             = digit { digit };
-
 float_lit           = digit { digit } "." digit { digit };
+
+int_lit             = digit { digit };
 
 bool_lit            = "true" | "false";
 
-string_lit          = '"' , { all characters - '"' }, '"';
+string_lit          = '"' { ? all visible characters ? } '"';
 
 letter              = "A" | ... | "Z"
                     | "a" | ... | "z";
 
-digit               = "0" | ... | "9";~
+digit               = "0" | ... | "9";
 
 newline             = "\n";
 
 indent              = "\t";
-
-characters          = ? all visible characters ?;
